@@ -30,8 +30,8 @@ public class PreCallbackHandler implements HttpHandler {
                     .setRedirectUri(URI.create("http://localhost:23435/callback"))
                     .build();
 
-            SpoticraftClient.CONFIG.setProperty("client-id", clientID);
-            SpoticraftClient.CONFIG.setProperty("client-secret", clientSecret);
+            SpoticraftClient.CONFIG.put("client-id", clientID);
+            SpoticraftClient.CONFIG.put("client-secret", clientSecret);
 
             exchange.close();
         }

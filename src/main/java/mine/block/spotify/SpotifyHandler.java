@@ -62,13 +62,16 @@ public class SpotifyHandler {
                 var creds = SPOTIFY_API.authorizationCodeRefresh().build().execute();
 
                 SPOTIFY_API.setAccessToken(creds.getAccessToken());
-                SPOTIFY_API.setRefreshToken(creds.getRefreshToken());
 
-                SpoticraftClient.CONFIG.setProperty("token", creds.getAccessToken());
-                SpoticraftClient.CONFIG.setProperty("refresh-token", creds.getRefreshToken());
+                if(creds.getRefreshToken() != null) {
+                    SPOTIFY_API.setRefreshToken(creds.getRefreshToken());
+                    SpoticraftClient.CONFIG.put("refresh-token", creds.getRefreshToken());
+                }
+
+                SpoticraftClient.CONFIG.put("token", creds.getAccessToken());
                 LOGGER.info("Refreshed Credentials.");
             } catch (IOException | SpotifyWebApiException | ParseException e) {
-                LOGGER.error("Failed to setup spotify.");
+                LOGGER.error("Failed to setup spotify. " + e);
                 System.exit(1);
             }
         }

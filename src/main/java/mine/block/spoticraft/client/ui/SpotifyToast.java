@@ -1,4 +1,4 @@
-package mine.block.spoticraft.client;
+package mine.block.spoticraft.client.ui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;

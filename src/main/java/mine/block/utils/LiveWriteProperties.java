@@ -1,4 +1,4 @@
-package mine.block.spoticraft.client;
+package mine.block.utils;
 
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -39,16 +39,5 @@ public class LiveWriteProperties extends Properties {
         var os = Files.newOutputStream(pathToConfig);
         this.store(os, null);
         os.close();
-    }
-
-    @Override
-    public synchronized Object setProperty(String key, String value) {
-        super.setProperty(key, value);
-        try {
-            markDirty();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return value;
     }
 }

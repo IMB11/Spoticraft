@@ -1,6 +1,8 @@
 package mine.block.spoticraft.client;
 
+import mine.block.spoticraft.client.ui.SpotifyToast;
 import mine.block.spotify.SpotifyHandler;
+import mine.block.utils.LiveWriteProperties;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
