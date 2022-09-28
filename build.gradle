@@ -12,9 +12,6 @@ local.load(project.rootProject.file('local.properties').newDataInputStream())
 
 repositories {
     jcenter()
-    maven {
-        url "https://jitpack.io/"
-    }
     mavenCentral()
     maven {
         url = uri("https://maven.pkg.github.com/Winterreisender/webviewko")
@@ -22,6 +19,13 @@ repositories {
             username = local.get("username")
             password = local.get("token")
         }
+    }
+    maven {
+        url "https://jitpack.io/"
+    }
+    maven {
+        name 'Gegy'
+        url 'https://maven.gegy.dev'
     }
 }
 
@@ -33,6 +37,7 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation include("dev.lambdaurora:spruceui:${project.spruceui_version}")
 
     implementation include('se.michaelthelin.spotify:spotify-web-api-java:7.2.1')
 

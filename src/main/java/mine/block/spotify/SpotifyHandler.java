@@ -4,6 +4,7 @@ import com.github.winterreisender.webviewko.WebviewKo;
 import com.sun.net.httpserver.HttpServer;
 import mine.block.spoticraft.client.SpoticraftClient;
 import mine.block.spotify.server.*;
+import net.minecraft.client.MinecraftClient;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -81,10 +82,6 @@ public class SpotifyHandler {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        PollingThread thread = new PollingThread();
-        executor.scheduleAtFixedRate(thread, 0, 5, TimeUnit.SECONDS);
     }
 
     @FunctionalInterface
@@ -92,22 +89,30 @@ public class SpotifyHandler {
         void run(CurrentlyPlaying cp);
     }
 
+    public static CurrentlyPlaying CURRENTLY_PLAYING = null;
     public static class PollingThread implements Runnable {
         private String song_id_old = "";
 
         @Override
         public void run() {
-            try {
-                var cp = SPOTIFY_API.getUsersCurrentlyPlayingTrack().build().execute();
-                if (cp == null) return;
-                if (!song_id_old.equals(cp.getItem().getId())) {
-                    song_id_old = cp.getItem().getId();
-                    if (songChangeEvent != null) {
-                        songChangeEvent.run(cp);
+            while (true) {
+                try {
+                    CURRENTLY_PLAYING = SPOTIFY_API.getUsersCurrentlyPlayingTrack().build().execute();
+                    if (CURRENTLY_PLAYING == null) return;
+                    if (!song_id_old.equals(CURRENTLY_PLAYING.getItem().getId())) {
+                        song_id_old = CURRENTLY_PLAYING.getItem().getId();
+                        if (songChangeEvent != null) {
+                            MinecraftClient.getInstance().executeTask(() -> songChangeEvent.run(CURRENTLY_PLAYING));
+                        }
                     }
+                } catch (IOException | SpotifyWebApiException | ParseException e) {
+                    LOGGER.warn("Failed to poll: " + e);
                 }
-            } catch (IOException | SpotifyWebApiException | ParseException e) {
-                LOGGER.warn("Failed to poll: " + e);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

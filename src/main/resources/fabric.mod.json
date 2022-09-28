@@ -19,6 +19,9 @@
       "mine.block.spoticraft.client.SpoticraftClient"
     ]
   },
+  "mixins": [
+    "spoticraft.mixin.json"
+  ],
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric-api": "*",
