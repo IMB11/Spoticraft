@@ -54,14 +54,6 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
-
-    filesMatching("SpotifyHandler") {
-
-        def localProperties = new Properties()
-        localProperties.load(new FileInputStream(rootProject.file("local.properties")))
-
-        expand "token": localProperties.spotify_key
-    }
 }
 
 def targetJavaVersion = 17
