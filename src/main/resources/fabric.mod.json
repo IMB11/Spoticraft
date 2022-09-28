@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "spoticraft",
+  "version": "${version}",
+  "name": "Spoticraft",
+  "description": "Spotify inside Minecraft! Pretty self explanatory.",
+  "authors": [
+    "mineblock11"
+  ],
+  "contact": {
+    "website": "https://mineblock11.dev/spoticraft",
+    "repo": "https://github.com/11mods/spoticraft"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/spoticraft/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "mine.block.spoticraft.client.SpoticraftClient"
+    ]
+  },
+  "mixins": [
+    "spoticraft.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric-api": "*",
+    "minecraft": "1.19.2"
+  }
+}
