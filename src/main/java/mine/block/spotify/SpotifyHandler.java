@@ -12,6 +12,7 @@ import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +21,7 @@ import static mine.block.spoticraft.client.SpoticraftClient.LOGGER;
 
 public class SpotifyHandler {
     public static SpotifyApi SPOTIFY_API;
-    public static SongChangeEvent songChangeEvent = null;
+    public static HashSet<SongChangeEvent> songChangeEvent = new HashSet<>();
 
     public static void setup() {
 
@@ -89,22 +90,16 @@ public class SpotifyHandler {
         void run(CurrentlyPlaying cp);
     }
 
-    public static CurrentlyPlaying CURRENTLY_PLAYING = null;
-    public static class PollingThread implements Runnable {
-        private String song_id_old = "";
 
+    public static class PollingThread implements Runnable {
+        public static CurrentlyPlaying CURRENTLY_PLAYING = null;
         @Override
         public void run() {
             while (true) {
                 try {
                     CURRENTLY_PLAYING = SPOTIFY_API.getUsersCurrentlyPlayingTrack().build().execute();
                     if (CURRENTLY_PLAYING == null) return;
-                    if (!song_id_old.equals(CURRENTLY_PLAYING.getItem().getId())) {
-                        song_id_old = CURRENTLY_PLAYING.getItem().getId();
-                        if (songChangeEvent != null) {
-                            MinecraftClient.getInstance().executeTask(() -> songChangeEvent.run(CURRENTLY_PLAYING));
-                        }
-                    }
+                    MinecraftClient.getInstance().executeTask(() -> songChangeEvent.forEach(event -> event.run(CURRENTLY_PLAYING)));
                 } catch (IOException | SpotifyWebApiException | ParseException e) {
                     LOGGER.warn("Failed to poll: " + e);
                 }
