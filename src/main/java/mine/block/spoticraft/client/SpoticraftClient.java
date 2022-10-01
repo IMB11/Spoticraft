@@ -53,28 +53,30 @@ public class SpoticraftClient implements ClientModInitializer {
                 if (item instanceof Track track) {
                     try {
                         NOW_ART = NativeImage.read(new URL(track.getAlbum().getImages()[0].getUrl()).openStream());
+                        TEXTURE.put(texture, NOW_ART);
+                        NOW_ID = texture;
+
+                        MinecraftClient.getInstance().getTextureManager().registerTexture(NOW_ID, new NativeImageBackedTexture(NOW_ART));
                     } catch (IOException e) {
                         return;
                     }
                 } else {
                     try {
                         NOW_ART = NativeImage.read(new URL(((Episode) currentlyPlaying.getItem()).getImages()[0].getUrl()).openStream());
+                        TEXTURE.put(texture, NOW_ART);
+                        NOW_ID = texture;
+                        MinecraftClient.getInstance().getTextureManager().registerTexture(NOW_ID, new NativeImageBackedTexture(NOW_ART));
                     } catch (IOException e) {
                         return;
                     }
                 }
-
-                TEXTURE.put(texture, NOW_ART);
-                NOW_ID = texture;
-                MinecraftClient.getInstance().getTextureManager().registerTexture(NOW_ID, new NativeImageBackedTexture(NOW_ART));
-
             } else {
                 NOW_ART = TEXTURE.get(texture);
                 NOW_ID = texture;
             }
 
 
-            if (MinecraftClient.getInstance().inGameHud != null && !(MinecraftClient.getInstance().currentScreen instanceof SpotifyScreen)) {
+            if (MinecraftClient.getInstance().inGameHud != null && !(MinecraftClient.getInstance().currentScreen instanceof SpotifyScreen) && NOW_ART != null) {
                 MinecraftClient.getInstance().getToastManager().add(new SpotifyToast(currentlyPlaying));
             }
         }
