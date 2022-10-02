@@ -4,38 +4,23 @@ import com.github.winterreisender.webviewko.WebviewKo;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lambdaurora.spruceui.Position;
 import dev.lambdaurora.spruceui.screen.SpruceScreen;
-import dev.lambdaurora.spruceui.widget.SpruceButtonWidget;
-import mine.block.spoticraft.client.SpoticraftClient;
 import mine.block.spoticraft.client.ui.widget.SpotifyPlaylistItemWidget;
 import mine.block.spoticraft.client.ui.widget.SpotifyTextButtonWidget;
 import mine.block.spotify.SpotifyHandler;
 import mine.block.spotify.SpotifyUtils;
-import net.fabricmc.loader.impl.util.UrlUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.SplashOverlay;
-import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.enums.ProductType;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
-import se.michaelthelin.spotify.model_objects.specification.Episode;
-import se.michaelthelin.spotify.model_objects.specification.Track;
-import se.michaelthelin.spotify.requests.data.player.SetRepeatModeOnUsersPlaybackRequest;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 public class SpotifyScreen extends SpruceScreen {
     private final boolean connected;
@@ -59,13 +44,17 @@ public class SpotifyScreen extends SpruceScreen {
         fill(matrices, 0, 0, this.width, this.height, 0xFF121212);
     }
 
+    public void triggerManualPoll() {
+        new SpotifyHandler.PollingThread().run();
+    }
+
     @Override
     protected void init() {
         super.init();
         this.addDrawableChild(new SpotifyTextButtonWidget(Position.of(2, height - 22), 46, 20, Text.of("⟵ Back"), (btn) -> client.setScreen(parent)));
         this.addDrawableChild(new SpotifyPlaylistItemWidget(Position.center(width / 2, (height / 3))));
 
-        var currentlyPlaying = SpoticraftClient.NOW_PLAYING;
+        var currentlyPlaying = SpotifyUtils.NOW_PLAYING;
 
         if(currentlyPlaying != null) {
             progress = ((float) 0.5 * currentlyPlaying.getProgress_ms()) / ((float) 0.5 * currentlyPlaying.getItem().getDurationMs());
@@ -81,72 +70,90 @@ public class SpotifyScreen extends SpruceScreen {
         } catch (IOException | SpotifyWebApiException | ParseException ignored) {}
 
         SpotifyTextButtonWidget infoWidget = new SpotifyTextButtonWidget(Position.of(2+46+2, height - 22), 20, 20, Text.of("ℹ"), (btn) -> {
+            btn.setActive(false);
             Thread t = new Thread(() -> {
                 WebviewKo webviewKo = new WebviewKo(1, null);
                 webviewKo.url("https://github.com/11mods/spoticraft");
                 webviewKo.show();
+                btn.setActive(true);
             });
-
             t.start();
         });
         this.addDrawableChild(infoWidget);
 
         SpotifyTextButtonWidget previousWidget = new SpotifyTextButtonWidget(Position.of(2+46+2+20+2, height - 22), 20, 20, Text.of("←"), (btn) -> {
-           try {
-               SpotifyHandler.SPOTIFY_API.skipUsersPlaybackToPreviousTrack().build().execute();
-           } catch (IOException | ParseException | SpotifyWebApiException ignored) {}
+            btn.setActive(false);
+            new Thread(() -> {try {
+                SpotifyHandler.SPOTIFY_API.skipUsersPlaybackToPreviousTrack().build().execute();
+                btn.setActive(true);
+                triggerManualPoll();
+           } catch (IOException | ParseException | SpotifyWebApiException ignored) {}}).start();
         });
 
         previousWidget.setActive(isPremium);
 
         SpotifyTextButtonWidget pausePlayWidget = new SpotifyTextButtonWidget(Position.of(2+46+2+20+2+20+2, height - 22), 20, 20, Text.of("⏯"), (btn) -> {
-            try {
+            btn.setActive(false);
+            new Thread(() -> {try {
                 var status = SpotifyHandler.SPOTIFY_API.getInformationAboutUsersCurrentPlayback().build().execute();
                 if(status.getIs_playing()) SpotifyHandler.SPOTIFY_API.pauseUsersPlayback().build().execute();
                 else SpotifyHandler.SPOTIFY_API.startResumeUsersPlayback().build().execute();
-            } catch (IOException | ParseException | SpotifyWebApiException ignored) {}
+                btn.setActive(true);
+                triggerManualPoll();
+            } catch (IOException | ParseException | SpotifyWebApiException ignored) {}}).start();
         });
 
         pausePlayWidget.setActive(isPremium);
 
         SpotifyTextButtonWidget nextWidget = new SpotifyTextButtonWidget(Position.of(2+46+2+20+2+20+2+20+2, height - 22), 20, 20, Text.of("→"), (btn) -> {
-            try {
+            btn.setActive(false);
+            new Thread(() -> {try {
                 SpotifyHandler.SPOTIFY_API.skipUsersPlaybackToNextTrack().build().execute();
-            } catch (IOException | ParseException | SpotifyWebApiException ignored) {}
+                btn.setActive(true);
+                triggerManualPoll();
+            } catch (IOException | ParseException | SpotifyWebApiException ignored) {}}).start();
         });
 
         nextWidget.setActive(isPremium);
 
         SpotifyTextButtonWidget shuffleWidget = new SpotifyTextButtonWidget(Position.of(width - 22, height - 22), 20, 20, Text.of("S"), (btn) -> {
-            try {
-                var playbackStatus = SpotifyHandler.SPOTIFY_API.getInformationAboutUsersCurrentPlayback().build().execute();
-                boolean shuffleState = playbackStatus.getShuffle_state();
-                SpotifyHandler.SPOTIFY_API.toggleShuffleForUsersPlayback(!shuffleState);
-                btn.setMessage(shuffleState ? Text.literal("🗘").formatted(Formatting.BLUE, Formatting.BOLD) : Text.of("🗘"));
-            } catch (IOException | ParseException | SpotifyWebApiException ignored) {}
+            btn.setActive(false);
+            new Thread(() -> {
+                try {
+                    var playbackStatus = SpotifyHandler.SPOTIFY_API.getInformationAboutUsersCurrentPlayback().build().execute();
+                    boolean shuffleState = playbackStatus.getShuffle_state();
+                    SpotifyHandler.SPOTIFY_API.toggleShuffleForUsersPlayback(!shuffleState).build().execute();
+                    btn.setMessage(shuffleState ? Text.of("S") : Text.literal("S").formatted(Formatting.BLUE, Formatting.BOLD));
+                    btn.setActive(true);
+                    triggerManualPoll();
+                } catch (IOException | ParseException | SpotifyWebApiException ignored) {}
+            }).start();
         });
 
         shuffleWidget.setActive(isPremium);
 
         SpotifyTextButtonWidget loopWidget = new SpotifyTextButtonWidget(Position.of(width - 44, height - 22), 20, 20, Text.of("R"), (btn) -> {
-            try {
+            btn.setActive(false);
+            new Thread(() -> {try {
                 var playbackStatus = SpotifyHandler.SPOTIFY_API.getInformationAboutUsersCurrentPlayback().build().execute();
                 var repeat_state = playbackStatus.getRepeat_state();
                 switch (repeat_state) {
                     case "context" -> {
-                        SpotifyHandler.SPOTIFY_API.setRepeatModeOnUsersPlayback("no").build().execute();
-                        btn.setMessage(Text.literal("⮔"));
+                        SpotifyHandler.SPOTIFY_API.setRepeatModeOnUsersPlayback("off").build().execute();
+                        btn.setMessage(Text.literal("R"));
                     }
                     case "track" -> {
                         SpotifyHandler.SPOTIFY_API.setRepeatModeOnUsersPlayback("context").build().execute();
-                        btn.setMessage(Text.literal("⮔").formatted(Formatting.BLUE, Formatting.BOLD));
+                        btn.setMessage(Text.literal("R").formatted(Formatting.BLUE, Formatting.BOLD));
                     }
-                    case "no" -> {
+                    case "off" -> {
                         SpotifyHandler.SPOTIFY_API.setRepeatModeOnUsersPlayback("track").build().execute();
-                        btn.setMessage(Text.literal("⮔").formatted(Formatting.GREEN, Formatting.BOLD));
+                        btn.setMessage(Text.literal("R").formatted(Formatting.GREEN, Formatting.BOLD));
                     }
                 }
-            } catch (IOException | ParseException | SpotifyWebApiException ignored) {}
+                btn.setActive(true);
+                triggerManualPoll();
+            } catch (IOException | ParseException | SpotifyWebApiException ignored) {}}).start();
         });
 
         loopWidget.setActive(isPremium);

@@ -1,6 +1,8 @@
 package mine.block.spotify;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import mine.block.spoticraft.client.ui.SpotifyScreen;
+import mine.block.spoticraft.client.ui.SpotifyToast;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -20,6 +22,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SpotifyUtils {
+
+    public static boolean MC_LOADED = false;
+    public static CurrentlyPlaying NOW_PLAYING = null;
+    public static NativeImage NOW_ART = null;
+    public static Identifier NOW_ID = null;
+    public static HashMap<Identifier, NativeImage> TEXTURE = new HashMap<>();
 
     public static InputStream loadHTMLFile(String id) {
         return SpotifyUtils.class.getResourceAsStream("/assets/spoticraft/web/" + id + ".html");
@@ -53,5 +61,52 @@ public class SpotifyUtils {
             }
         }
         return result;
+    }
+
+    public static void run(CurrentlyPlaying currentlyPlaying) {
+        if(!MC_LOADED) return;
+        if (NOW_PLAYING == null || !NOW_PLAYING.getItem().getId().equals(currentlyPlaying.getItem().getId())) {
+            NOW_PLAYING = currentlyPlaying;
+
+            var item = currentlyPlaying.getItem();
+
+            Identifier texture = new Identifier("spotify", currentlyPlaying.getItem().getId().toLowerCase());
+
+            if (!TEXTURE.containsKey(texture)) {
+                if (item instanceof Track track) {
+                    try {
+                        NOW_ART = NativeImage.read(new URL(track.getAlbum().getImages()[0].getUrl()).openStream());
+                        TEXTURE.put(texture, NOW_ART);
+                        NOW_ID = texture;
+
+                        MinecraftClient.getInstance().getTextureManager().registerTexture(NOW_ID, new NativeImageBackedTexture(NOW_ART));
+                    } catch (IOException e) {
+                        return;
+                    }
+                } else {
+                    try {
+                        NOW_ART = NativeImage.read(new URL(((Episode) currentlyPlaying.getItem()).getImages()[0].getUrl()).openStream());
+                        TEXTURE.put(texture, NOW_ART);
+                        NOW_ID = texture;
+                        MinecraftClient.getInstance().getTextureManager().registerTexture(NOW_ID, new NativeImageBackedTexture(NOW_ART));
+                    } catch (IOException e) {
+                        return;
+                    }
+                }
+            } else {
+                NOW_ART = TEXTURE.get(texture);
+                NOW_ID = texture;
+            }
+
+
+            if (MinecraftClient.getInstance().inGameHud != null && !(MinecraftClient.getInstance().currentScreen instanceof SpotifyScreen) && NOW_ART != null) {
+                MinecraftClient.getInstance().getToastManager().add(new SpotifyToast(currentlyPlaying));
+            }
+        }
+
+
+        if (MinecraftClient.getInstance().currentScreen instanceof SpotifyScreen spotifyScreen) {
+            spotifyScreen.progress = (float) currentlyPlaying.getProgress_ms() / (float) currentlyPlaying.getItem().getDurationMs();
+        }
     }
 }

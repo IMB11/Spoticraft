@@ -57,7 +57,7 @@
             }
 
             fetch("http://localhost:23435/pre-callback?clientid=" + clientIDInput.value + "&clientsecret=" + clientSecretInput.value);
-            window.location.href = encodeURI("https://accounts.spotify.com/authorize?response_type=code&client_id=" + clientIDInput.value + "&scope=user-modify-playback-state user-read-currently-playing user-read-playback-position streaming user-read-playback-state&redirect_uri=http://localhost:23435/callback");
+            window.location.href = encodeURI("https://accounts.spotify.com/authorize?response_type=code&client_id=" + clientIDInput.value + "&scope=user-read-private user-modify-playback-state user-read-currently-playing user-read-playback-position streaming user-read-playback-state&redirect_uri=http://localhost:23435/callback");
         }
     </script>
 </head>

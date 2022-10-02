@@ -61,6 +61,7 @@ public class CallbackHandler implements HttpHandler {
             LOGGER.info("Saving credentials.");
             SpoticraftClient.CONFIG.put("token", credentials.getAccessToken());
             SpoticraftClient.CONFIG.put("refresh-token", credentials.getRefreshToken());
+            SpoticraftClient.CONFIG.put("version", SpoticraftClient.VERSION);
             LOGGER.info("Saved Credentials.");
 
             server.stop(15);
