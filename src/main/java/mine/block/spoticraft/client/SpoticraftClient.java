@@ -101,7 +101,7 @@ public class SpoticraftClient implements ClientModInitializer {
         var key = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.spotify.open",
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_P,
+                GLFW.GLFW_KEY_O,
                 "category.spotify.main"
         ));
 
