@@ -6,7 +6,8 @@
   "mixins": [
   ],
   "client": [
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "SoundSystemMixin"
   ],
   "injectors": {
     "defaultRequire": 1
