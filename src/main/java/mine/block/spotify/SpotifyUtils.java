@@ -102,6 +102,8 @@ public class SpotifyUtils {
             if (MinecraftClient.getInstance().inGameHud != null && !(MinecraftClient.getInstance().currentScreen instanceof SpotifyScreen) && NOW_ART != null) {
                 MinecraftClient.getInstance().getToastManager().add(new SpotifyToast(currentlyPlaying));
             }
+        } else if (NOW_PLAYING.getIs_playing() != currentlyPlaying.getIs_playing()) {
+            NOW_PLAYING = currentlyPlaying;
         }
 
 
