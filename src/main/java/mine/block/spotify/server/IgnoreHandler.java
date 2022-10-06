@@ -7,7 +7,8 @@ import java.io.IOException;
 
 public class IgnoreHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
-        exchange.sendResponseHeaders(204, -1);
-        exchange.close();
+        try (exchange) {
+            exchange.sendResponseHeaders(204, -1);
+        }
     }
 }
