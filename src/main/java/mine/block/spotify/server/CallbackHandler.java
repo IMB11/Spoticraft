@@ -6,11 +6,13 @@ import com.sun.net.httpserver.HttpServer;
 import mine.block.spoticraft.client.SpoticraftClient;
 import mine.block.spotify.SpotifyHandler;
 import mine.block.spotify.SpotifyUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import static mine.block.spoticraft.client.SpoticraftClient.LOGGER;
@@ -29,9 +31,9 @@ public class CallbackHandler implements HttpHandler {
         if (requestMethod.equalsIgnoreCase("GET")) {
             exchange.getResponseHeaders().set("Content-Type", "text/html");
             exchange.sendResponseHeaders(200, 0);
-            OutputStream responseBody = exchange.getResponseBody();
-            responseBody.write(SpotifyHandler.class.getResourceAsStream("/assets/spoticraft/web/callback.html").readAllBytes());
-            responseBody.close();
+            try(OutputStream responseBody = exchange.getResponseBody(); InputStream page = SpotifyUtils.loadHTMLFile("callback")) {
+                IOUtils.copy(page, responseBody);
+            }
 
             LOGGER.info("Captured callback. Parsing oauth2 code.");
 

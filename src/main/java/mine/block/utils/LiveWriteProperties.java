@@ -19,8 +19,8 @@ public class LiveWriteProperties extends Properties {
 
     public LiveWriteProperties() {
         if(Files.exists(pathToConfig)) {
-            try {
-                this.load(Files.newInputStream(pathToConfig));
+            try (var stream = Files.newInputStream(pathToConfig)) {
+                this.load(stream);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -41,8 +41,8 @@ public class LiveWriteProperties extends Properties {
     }
 
     public void markDirty() throws IOException {
-        var os = Files.newOutputStream(pathToConfig);
-        this.store(os, null);
-        os.close();
+        try(var os = Files.newOutputStream(pathToConfig)) {
+            this.store(os, null);
+        }
     }
 }

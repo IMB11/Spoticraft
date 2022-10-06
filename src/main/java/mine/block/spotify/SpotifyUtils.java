@@ -1,6 +1,5 @@
 package mine.block.spotify;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mine.block.spoticraft.client.ui.SpotifyScreen;
 import mine.block.spoticraft.client.ui.SpotifyToast;
 import net.minecraft.client.MinecraftClient;
@@ -13,11 +12,8 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.annotation.Native;
-import java.net.MalformedURLException;
+import java.net.InetAddress;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,19 +25,18 @@ public class SpotifyUtils {
     public static Identifier NOW_ID = null;
     public static HashMap<Identifier, NativeImage> TEXTURE = new HashMap<>();
 
-    public static InputStream loadHTMLFile(String id) {
-        return SpotifyUtils.class.getResourceAsStream("/assets/spoticraft/web/" + id + ".html");
+    public static InputStream loadHTMLFile(String id) throws IOException {
+        var path = "/assets/spoticraft/web/" + id + ".html";
+        var result = SpotifyUtils.class.getResourceAsStream(path);
+        if (result == null) {
+            throw new IOException("Could not find resource: " + path);
+        }
+        return result;
     }
 
     public static boolean netIsAvailable() {
         try {
-            final URL url = new URL("https://www.google.com");
-            final URLConnection conn = url.openConnection();
-            conn.connect();
-            conn.getInputStream().close();
-            return true;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            return InetAddress.getByName("www.google.com").isReachable(8000);
         } catch (IOException e) {
             return false;
         }
