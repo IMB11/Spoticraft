@@ -29,7 +29,7 @@ public class SpotifyUtils {
         var path = "/assets/spoticraft/web/" + id + ".html";
         var result = SpotifyUtils.class.getResourceAsStream(path);
         if (result == null) {
-            throw new IOException("Could not find resource '/assets/spoticraft/web/callback.html'");
+            throw new IOException("Could not find resource: " + path);
         }
         return result;
     }
