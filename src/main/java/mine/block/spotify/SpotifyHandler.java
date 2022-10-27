@@ -13,9 +13,6 @@ import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import java.io.IOException;
 import java.net.*;
 import java.util.HashSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static mine.block.spoticraft.client.SpoticraftClient.LOGGER;
 
@@ -23,10 +20,9 @@ public class SpotifyHandler {
     public static SpotifyApi SPOTIFY_API;
     public static HashSet<SongChangeEvent> songChangeEvent = new HashSet<>();
 
-    public static void setup() {
-
-        if(SpoticraftClient.CONFIG.empty) {
-            LOGGER.info("No config present, starting oauth creation screen.");
+    public static void setup(boolean reset) {
+        if(reset || SpoticraftClient.SPOTIFY_CONFIG.empty) {
+            LOGGER.info("Starting oauth creation screen.");
 
             WebviewKo webview = new WebviewKo(1, null);
             webview.title("Spoticraft - Setup");
@@ -55,10 +51,10 @@ public class SpotifyHandler {
             }
         } else {
             SPOTIFY_API = new SpotifyApi.Builder()
-                    .setClientId(SpoticraftClient.CONFIG.getProperty("client-id"))
-                    .setClientSecret(SpoticraftClient.CONFIG.getProperty("client-secret"))
-                    .setAccessToken(SpoticraftClient.CONFIG.getProperty("token"))
-                    .setRefreshToken(SpoticraftClient.CONFIG.getProperty("refresh-token"))
+                    .setClientId(SpoticraftClient.SPOTIFY_CONFIG.getProperty("client-id"))
+                    .setClientSecret(SpoticraftClient.SPOTIFY_CONFIG.getProperty("client-secret"))
+                    .setAccessToken(SpoticraftClient.SPOTIFY_CONFIG.getProperty("token"))
+                    .setRefreshToken(SpoticraftClient.SPOTIFY_CONFIG.getProperty("refresh-token"))
                     .build();
             try {
                 var creds = SPOTIFY_API.authorizationCodeRefresh().build().execute();
@@ -67,19 +63,19 @@ public class SpotifyHandler {
 
                 if(creds.getRefreshToken() != null) {
                     SPOTIFY_API.setRefreshToken(creds.getRefreshToken());
-                    SpoticraftClient.CONFIG.put("refresh-token", creds.getRefreshToken());
+                    SpoticraftClient.SPOTIFY_CONFIG.put("refresh-token", creds.getRefreshToken());
                 }
 
-                SpoticraftClient.CONFIG.put("token", creds.getAccessToken());
+                SpoticraftClient.SPOTIFY_CONFIG.put("token", creds.getAccessToken());
                 LOGGER.info("Refreshed Credentials.");
             } catch (IOException | SpotifyWebApiException | ParseException e) {
-                LOGGER.error("Failed to setup spotify. " + e);
+                LOGGER.error("Failed to setup spotify. ", e);
                 System.exit(1);
             }
         }
 
         try {
-            SpoticraftClient.CONFIG.markDirty();
+            SpoticraftClient.SPOTIFY_CONFIG.markDirty();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

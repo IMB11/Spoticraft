@@ -5,16 +5,13 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 
-import static mine.block.spoticraft.client.SpoticraftClient.LOGGER;
-
 public class LiveWriteProperties extends Properties {
 
-    private final Path pathToConfig = FabricLoader.getInstance().getConfigDir().resolve("spotify.cred");
+    private final Path pathToConfig = FabricLoader.getInstance().getConfigDir().resolve(SpoticraftClient.MODID).resolve("spotify.cred");
     public boolean empty = true;
 
     public LiveWriteProperties() {

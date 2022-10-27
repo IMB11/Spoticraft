@@ -61,9 +61,9 @@ public class CallbackHandler implements HttpHandler {
             SpotifyHandler.SPOTIFY_API.setRefreshToken(credentials.getRefreshToken());
 
             LOGGER.info("Saving credentials.");
-            SpoticraftClient.CONFIG.put("token", credentials.getAccessToken());
-            SpoticraftClient.CONFIG.put("refresh-token", credentials.getRefreshToken());
-            SpoticraftClient.CONFIG.put("version", SpoticraftClient.VERSION);
+            SpoticraftClient.SPOTIFY_CONFIG.put("token", credentials.getAccessToken());
+            SpoticraftClient.SPOTIFY_CONFIG.put("refresh-token", credentials.getRefreshToken());
+            SpoticraftClient.SPOTIFY_CONFIG.put("version", SpoticraftClient.VERSION);
             LOGGER.info("Saved Credentials.");
 
             server.stop(15);

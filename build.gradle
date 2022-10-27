@@ -14,18 +14,26 @@ repositories {
     jcenter()
     mavenCentral()
     maven {
-        url = uri("https://maven.pkg.github.com/Winterreisender/webviewko")
+        url = "https://maven.pkg.github.com/Winterreisender/webviewko"
         credentials {
             username = local.get("username")
             password = local.get("token")
         }
     }
     maven {
-        url "https://jitpack.io/"
+        name = "Gegy"
+        url = "https://maven.gegy.dev"
     }
     maven {
-        name 'Gegy'
-        url 'https://maven.gegy.dev'
+        name = "owo"
+        url = "https://maven.wispforest.io"
+    }
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/releases"
+    }
+    maven {
+        url "https://jitpack.io"
     }
 }
 
@@ -37,7 +45,13 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+
     modImplementation include("dev.lambdaurora:spruceui:${project.spruceui_version}")
+    modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+    annotationProcessor "io.wispforest:owo-lib:${project.owo_version}"
+    include "io.wispforest:owo-lib:${project.owo_version}"
 
     implementation include('se.michaelthelin.spotify:spotify-web-api-java:7.2.1')
 
