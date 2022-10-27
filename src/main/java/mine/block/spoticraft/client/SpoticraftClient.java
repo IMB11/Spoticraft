@@ -35,7 +35,13 @@ public class SpoticraftClient implements ClientModInitializer {
     public void onInitializeClient() {
         MOD_CONFIG.subscribeToResetSpotifyCredentials(SpoticraftConfigModel.Callbacks::onResetCredentials);
         MOD_CONFIG.subscribeToAutoMuteIngameMusic(SpoticraftConfigModel.Callbacks::onToggleMuteMusic);
-        SpotifyHandler.setup(false);
+
+        boolean reset = MOD_CONFIG.resetSpotifyCredentials();
+        if (reset) {
+            MOD_CONFIG.resetSpotifyCredentials(false);
+            MOD_CONFIG.save();
+        }
+        SpotifyHandler.setup(reset);
 
         SpotifyHandler.PollingThread thread = new SpotifyHandler.PollingThread();
         ExecutorService checkTasksExecutorService = new ThreadPoolExecutor(1, 10,
