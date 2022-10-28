@@ -1,4 +1,8 @@
 {
   "key.spotify.open": "Open Spotify Screen",
-  "category.spotify.main": "Spoticraft"
+  "category.spotify.main": "Spoticraft",
+
+  "text.config.spoticraft/spoticraft.title": "Spoticraft",
+  "text.config.spoticraft/spoticraft.option.autoMuteIngameMusic": "Mute ingame music while playing",
+  "text.config.spoticraft/spoticraft.option.resetSpotifyCredentials": "Reset Spotify Credentials NOW"
 }

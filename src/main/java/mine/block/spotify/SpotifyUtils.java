@@ -1,10 +1,12 @@
 package mine.block.spotify;
 
+import mine.block.spoticraft.client.SpoticraftClient;
 import mine.block.spoticraft.client.ui.SpotifyScreen;
 import mine.block.spoticraft.client.ui.SpotifyToast;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 import se.michaelthelin.spotify.model_objects.specification.Episode;
@@ -62,6 +64,11 @@ public class SpotifyUtils {
         if(!MC_LOADED) return;
         if (NOW_PLAYING == null || !NOW_PLAYING.getItem().getId().equals(currentlyPlaying.getItem().getId())) {
             NOW_PLAYING = currentlyPlaying;
+            MinecraftClient.getInstance().submit(() -> {
+                if(SpoticraftClient.MOD_CONFIG.autoMuteIngameMusic() && SpotifyUtils.NOW_PLAYING != null && SpotifyUtils.NOW_PLAYING.getIs_playing()) {
+                    MinecraftClient.getInstance().getSoundManager().stopSounds(null, SoundCategory.MUSIC);
+                }
+            });
 
             var item = currentlyPlaying.getItem();
 

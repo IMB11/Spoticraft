@@ -5,19 +5,32 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 
-import static mine.block.spoticraft.client.SpoticraftClient.LOGGER;
-
 public class LiveWriteProperties extends Properties {
 
-    private final Path pathToConfig = FabricLoader.getInstance().getConfigDir().resolve("spotify.cred");
+    private final Path pathToConfig = FabricLoader.getInstance().getConfigDir().resolve(SpoticraftClient.MODID).resolve("spotify.cred");
     public boolean empty = true;
 
     public LiveWriteProperties() {
+        // migrate old configs
+        Path legacyPath = FabricLoader.getInstance().getConfigDir().resolve("spotify.cred");
+        if(Files.exists(legacyPath)) {
+            SpoticraftClient.LOGGER.warn("Found legacy spotify credentials, migrating to new location");
+            try {
+                Files.move(legacyPath, pathToConfig);
+            } catch (IOException e) {
+                SpoticraftClient.LOGGER.error("Failed to migrate legacy spotify credentials", e);
+                try {
+                    Files.deleteIfExists(legacyPath);
+                } catch (IOException ex) {
+                    throw new IllegalStateException("Unable to delete legacy config after IO error, please manually delete the file at " + legacyPath, ex);
+                }
+            }
+        }
+
         if(Files.exists(pathToConfig)) {
             try (var stream = Files.newInputStream(pathToConfig)) {
                 this.load(stream);
@@ -26,7 +39,7 @@ public class LiveWriteProperties extends Properties {
             }
 
             if(this.getProperty("client-secret") == null || !Objects.equals(this.getProperty("version"), SpoticraftClient.VERSION)) {
-                System.out.println("Old configuration file! Removing.");
+                SpoticraftClient.LOGGER.warn("Old configuration file! Removing.");
                 try {
                     Files.delete(pathToConfig);
                 } catch (IOException e) {
