@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class SoundSystemMixin {
     @Inject(method = "play(Lnet/minecraft/client/sound/SoundInstance;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sound/SoundInstance;getCategory()Lnet/minecraft/sound/SoundCategory;"), cancellable = true)
     public void spoticraft$cancelMusicIfSpotifyPlaying(SoundInstance sound, CallbackInfo ci) {
-        if (sound.getCategory() == SoundCategory.MUSIC && SpotifyUtils.NOW_PLAYING != null && SpotifyUtils.NOW_PLAYING.getIs_playing()) {
+        if (sound.getCategory() == SoundCategory.MUSIC && SpoticraftClient.MOD_CONFIG.autoMuteIngameMusic() && SpotifyUtils.NOW_PLAYING != null && SpotifyUtils.NOW_PLAYING.getIs_playing()) {
             ci.cancel();
         }
     }

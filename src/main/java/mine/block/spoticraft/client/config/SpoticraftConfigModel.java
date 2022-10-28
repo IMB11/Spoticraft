@@ -4,6 +4,8 @@ import io.wispforest.owo.config.annotation.Config;
 import io.wispforest.owo.config.annotation.Modmenu;
 import mine.block.spoticraft.client.SpoticraftClient;
 import mine.block.spotify.SpotifyHandler;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.sound.SoundCategory;
 
 @Modmenu(modId = SpoticraftClient.MODID)
 @Config(name = SpoticraftClient.MODID + "/spoticraft", wrapperName = "SpoticraftConfig", defaultHook = true)
@@ -24,8 +26,9 @@ public class SpoticraftConfigModel {
         }
 
         public static void onToggleMuteMusic(boolean newValue) {
-            // TODO toggle ingame music
+            if(newValue) {
+                MinecraftClient.getInstance().getSoundManager().stopSounds(null, SoundCategory.MUSIC);
+            }
         }
-
     }
 }
