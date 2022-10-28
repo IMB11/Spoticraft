@@ -4,6 +4,7 @@ import io.wispforest.owo.config.annotation.Config;
 import io.wispforest.owo.config.annotation.Modmenu;
 import mine.block.spoticraft.client.SpoticraftClient;
 import mine.block.spotify.SpotifyHandler;
+import mine.block.spotify.SpotifyUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundCategory;
 
@@ -26,7 +27,7 @@ public class SpoticraftConfigModel {
         }
 
         public static void onToggleMuteMusic(boolean newValue) {
-            if(newValue) {
+            if(newValue && SpotifyUtils.NOW_PLAYING != null && SpotifyUtils.NOW_PLAYING.getIs_playing()) {
                 MinecraftClient.getInstance().getSoundManager().stopSounds(null, SoundCategory.MUSIC);
             }
         }
