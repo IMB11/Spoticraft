@@ -20,7 +20,8 @@ public class TitleScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     public void init(CallbackInfo ci) {
-        SpotifyButtonWidget widget = new SpotifyButtonWidget(Position.of(this.width / 2 - 124 - 25, (this.height / 4 + 48) + 72 + 12), 20, 20, Text.empty(), (btn) -> client.setScreen(new SpotifyScreen(this)));
+        int l = this.height / 4 + 48;
+        SpotifyButtonWidget widget = new SpotifyButtonWidget(Position.of(this.width / 2 + 129, l + 96), 20, 20, Text.empty(), (btn) -> client.setScreen(new SpotifyScreen(this)));
         this.addDrawableChild(widget);
 
         SpotifyUtils.MC_LOADED = true;

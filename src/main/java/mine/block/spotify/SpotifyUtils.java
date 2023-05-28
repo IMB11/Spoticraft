@@ -14,8 +14,7 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.URL;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +36,22 @@ public class SpotifyUtils {
     }
 
     public static boolean netIsAvailable() {
-        try {
-            return InetAddress.getByName("www.google.com").isReachable(8000);
-        } catch (IOException e) {
+        return isHostAvailable("google.com") || isHostAvailable("amazon.com")
+                || isHostAvailable("facebook.com")|| isHostAvailable("apple.com");
+    }
+
+    private static boolean isHostAvailable(String hostName)
+    {
+        try(Socket socket = new Socket())
+        {
+            int port = 80;
+            InetSocketAddress socketAddress = new InetSocketAddress(hostName, port);
+            socket.connect(socketAddress, 3000);
+
+            return true;
+        }
+        catch(Exception unknownHost)
+        {
             return false;
         }
     }

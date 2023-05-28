@@ -3,7 +3,9 @@ package mine.block.spoticraft.client.ui;
 import com.github.winterreisender.webviewko.WebviewKo;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lambdaurora.spruceui.Position;
+import dev.lambdaurora.spruceui.Tooltip;
 import dev.lambdaurora.spruceui.screen.SpruceScreen;
+import dev.lambdaurora.spruceui.util.ScissorManager;
 import mine.block.spoticraft.client.ui.widget.SpotifyPlaylistItemWidget;
 import mine.block.spoticraft.client.ui.widget.SpotifyTextButtonWidget;
 import mine.block.spotify.SpotifyHandler;
@@ -15,6 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.enums.ProductType;
@@ -70,14 +73,7 @@ public class SpotifyScreen extends SpruceScreen {
         } catch (IOException | SpotifyWebApiException | ParseException ignored) {}
 
         SpotifyTextButtonWidget infoWidget = new SpotifyTextButtonWidget(Position.of(2+46+2, height - 22), 20, 20, Text.of("ℹ"), (btn) -> {
-            btn.setActive(false);
-            Thread t = new Thread(() -> {
-                WebviewKo webviewKo = new WebviewKo(1, null);
-                webviewKo.url("https://github.com/11mods/spoticraft");
-                webviewKo.show();
-                btn.setActive(true);
-            });
-            t.start();
+            Util.getOperatingSystem().open("https://github.com/mineblock11/Spoticraft");
         });
         this.addDrawableChild(infoWidget);
 
@@ -167,7 +163,12 @@ public class SpotifyScreen extends SpruceScreen {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
+        ScissorManager.pushScaleFactor(this.scaleFactor);
+        this.renderBackground(matrices);
+        this.renderWidgets(matrices, mouseX, mouseY, delta);
+        this.renderTitle(matrices, mouseX, mouseY, delta);
+        Tooltip.renderAll(this, matrices);
+        ScissorManager.popScaleFactor();
 
         if(!connected) {
             Text text = Text.literal("No Spotify Connection").formatted(Formatting.RED, Formatting.BOLD);

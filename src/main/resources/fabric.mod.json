@@ -8,10 +8,10 @@
     "mineblock11"
   ],
   "contact": {
-    "website": "https://mineblock11.dev/spoticraft",
-    "repo": "https://github.com/11mods/spoticraft"
+    "website": "https://docs.mineblock11.dev/",
+    "repo": "https://github.com/mineblock11/spoticraft"
   },
-  "license": "All-Rights-Reserved",
+  "license": "MIT",
   "icon": "assets/spoticraft/icon.png",
   "environment": "*",
   "entrypoints": {
@@ -25,6 +25,6 @@
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric-api": "*",
-    "minecraft": ">=1.19"
+    "minecraft": "1.19.4"
   }
 }
