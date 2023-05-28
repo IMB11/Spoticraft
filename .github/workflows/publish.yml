@@ -23,7 +23,7 @@ jobs:
           java-version: 17
       - run:
           echo username=mineblock11 >> local.properties
-          echo token=$CLASSIC_GITHUB_TOKEN >> local.properties
+          echo token=$PACKAGES_TOKEN >> local.properties
       - run: chmod +x gradlew
       - name: Build And Publish To Maven
         run: ./gradlew build publish --no-daemon
