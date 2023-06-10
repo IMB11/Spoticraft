@@ -2,6 +2,7 @@ package mine.block.spoticraft.client.ui.widget;
 
 import dev.lambdaurora.spruceui.Position;
 import dev.lambdaurora.spruceui.widget.SpruceButtonWidget;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
@@ -11,8 +12,8 @@ public class SpotifyTextButtonWidget extends SpruceButtonWidget {
     }
 
     @Override
-    protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        super.renderBackground(matrices, mouseX, mouseY, delta);
-        fill(matrices, this.getX()+1, this.getY()+1, this.getX()+this.width - 1, this.getY()+this.height - 1, 0xFF000000);
+    protected void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.renderBackground(context, mouseX, mouseY, delta);
+        context.fill(this.getX()+1, this.getY()+1, this.getX()+this.width - 1, this.getY()+this.height - 1, 0xFF000000);
     }
 }

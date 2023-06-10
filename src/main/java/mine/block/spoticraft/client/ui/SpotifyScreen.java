@@ -11,7 +11,7 @@ import mine.block.spoticraft.client.ui.widget.SpotifyTextButtonWidget;
 import mine.block.spotify.SpotifyHandler;
 import mine.block.spotify.SpotifyUtils;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -43,8 +43,8 @@ public class SpotifyScreen extends SpruceScreen {
     }
 
     @Override
-    public void renderBackground(MatrixStack matrices) {
-        fill(matrices, 0, 0, this.width, this.height, 0xFF121212);
+    public void renderBackground(DrawContext context) {
+        context.fill(0, 0, this.width, this.height, 0xFF121212);
     }
 
     public void triggerManualPoll() {
@@ -162,37 +162,39 @@ public class SpotifyScreen extends SpruceScreen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         ScissorManager.pushScaleFactor(this.scaleFactor);
-        this.renderBackground(matrices);
-        this.renderWidgets(matrices, mouseX, mouseY, delta);
-        this.renderTitle(matrices, mouseX, mouseY, delta);
-        Tooltip.renderAll(this, matrices);
+        this.renderBackground(context);
+        this.renderWidgets(context, mouseX, mouseY, delta);
+        this.renderTitle(context, mouseX, mouseY, delta);
+        Tooltip.renderAll(context);
         ScissorManager.popScaleFactor();
+
+        var textRenderer = MinecraftClient.getInstance().textRenderer;
 
         if(!connected) {
             Text text = Text.literal("No Spotify Connection").formatted(Formatting.RED, Formatting.BOLD);
             int widthe = MinecraftClient.getInstance().textRenderer.getWidth(text);
-            MinecraftClient.getInstance().textRenderer.draw(matrices, text, (width / 2F) - (widthe / 2f), (height / 2F) - (widthe / 2f), 0xFFFF0000);
+            context.drawText(textRenderer, text, (width / 2) - (widthe / 2), (height / 2) - (widthe / 2), 0xFFFF0000, false);
             return;
         }
 
-        renderProgressBar(matrices);
+
+
+        renderProgressBar(context);
 
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, new Identifier("spoticraft", "textures/spotify-long.png"));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        DrawableHelper.drawTexture(matrices, this.width - 2 - 128/2, 4, 64, 18, 0, 0, 312, 92, 312, 92);
-        RenderSystem.setShaderTexture(0, new Identifier("spoticraft", "textures/spotify.png"));
-        DrawableHelper.drawTexture(matrices, this.width - 2 - 128/2 - 18, 4, 16, 16, 0, 0, 32, 32, 32, 32);
+        context.drawTexture(new Identifier("spoticraft", "textures/spotify-long.png"), this.width - 2 - 128/2, 4, 64, 18, 0, 0, 312, 92, 312, 92);
+        context.drawTexture(new Identifier("spoticraft", "textures/spotify.png"), this.width - 2 - 128/2 - 18, 4, 16, 16, 0, 0, 32, 32, 32, 32);
 
         RenderSystem.disableBlend();
     }
 
-    private void renderProgressBar(MatrixStack matrices) {
+    private void renderProgressBar(DrawContext context) {
         float playbackBarWidth = this.width - 46;
-        fill(matrices, 2+46+2+20+2+20+2+20+2+20+2, height - 19, (int)playbackBarWidth, height - 4, 0xFF5E5E5E);
+        context.fill(2+46+2+20+2+20+2+20+2+20+2, height - 19, (int)playbackBarWidth, height - 4, 0xFF5E5E5E);
         this.percentageDone = MathHelper.clamp(this.percentageDone * 0.95F + this.progress * 0.050000012F, 0.0F, 1.0F);
 
         if(percentageDone <= 0) {
@@ -200,6 +202,6 @@ public class SpotifyScreen extends SpruceScreen {
         }
 
         float filledWidth = 2+46+2+20+2+20+2+20+2+20+2 + MathHelper.ceil((float)((this.width - 46) - (2+46+2+20+2+20+2+20+2+20+2) - 2) * this.percentageDone);
-        fill(matrices, (int) 2+46+2+20+2+20+2+20+2+20+2, height - 19, (int) filledWidth, height - 4, 0xFFFFFFFF);
+        context.fill((int) 2+46+2+20+2+20+2+20+2+20+2, height - 19, (int) filledWidth, height - 4, 0xFFFFFFFF);
     }
 }
