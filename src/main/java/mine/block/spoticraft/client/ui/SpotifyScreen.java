@@ -43,7 +43,7 @@ public class SpotifyScreen extends SpruceScreen {
     }
 
     @Override
-    public void renderBackground(DrawContext context) {
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(0, 0, this.width, this.height, 0xFF121212);
     }
 
@@ -164,7 +164,7 @@ public class SpotifyScreen extends SpruceScreen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         ScissorManager.pushScaleFactor(this.scaleFactor);
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
         this.renderWidgets(context, mouseX, mouseY, delta);
         this.renderTitle(context, mouseX, mouseY, delta);
         Tooltip.renderAll(context);
